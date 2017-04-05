@@ -1,0 +1,8 @@
+.project
+.classpath
+.settings
+.metadata
+/database.sqlite
+/database-test.sqlite
+/sqlite3.exe
+target

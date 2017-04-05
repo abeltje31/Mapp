@@ -16,10 +16,10 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.abeling.mapp.App;
 import com.abeling.mapp.model.Box;
-import com.abeling.mapp.model.Item;
+import com.abeling.mapp.model.Location;
 import com.abeling.mapp.model.Room;
 import com.abeling.mapp.persistence.BoxRepository;
-import com.abeling.mapp.persistence.ItemRepository;
+import com.abeling.mapp.persistence.LocationRepository;
 import com.abeling.mapp.persistence.RoomRepository;
 
 import java.nio.charset.Charset;
@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
 @SpringBootTest(classes = App.class)
 @ActiveProfiles("test")
 @WebAppConfiguration
-public class BoxRestControllerTest {
+public class RoomRestControllerTest {
 
 	private MediaType contentType = new MediaType("application", "hal+json", Charset.forName("utf8")); 
 	
@@ -45,20 +45,20 @@ public class BoxRestControllerTest {
 	@SuppressWarnings("rawtypes")
 	private HttpMessageConverter mappingJackson2HttpMessageConverter;
 	
+	private List<Location> locationList = new ArrayList<>();
+	
 	private List<Room> roomList = new ArrayList<>();
 	
 	private List<Box> boxList = new ArrayList<>();
-	
-	private List<Item> itemList = new ArrayList<>();
+		
+	@Autowired
+	private LocationRepository locationRepository;
 	
 	@Autowired
 	private RoomRepository roomRepository;
 	
 	@Autowired
 	private BoxRepository boxRepository;
-	
-	@Autowired
-	private ItemRepository itemRepository;
 	
 	@Autowired
 	private WebApplicationContext webApplicationContext;
@@ -75,43 +75,41 @@ public class BoxRestControllerTest {
 	@Before
 	public void setup() throws Exception {
 		this.mockMvc = webAppContextSetup(webApplicationContext).build();
-		this.boxRepository.deleteAll();
+		this.roomRepository.deleteAll();
 		
-		Room room1 = new Room(1l, "Livingroom", "The beautifull livingroom", 1);
+		Location location1 =new Location(1l, "House", "The nice house");
+		
+		Room room1 = new Room(1l, "Livingroom", "The beautifull livingroom", 1, location1);
+		Room room2 = new Room(2l, "Sleepingroom", "The romantic sleepingroom", 2, location1);
 		
 		Box box1 = new Box(1l, "EA01", "Ernies box 1", room1);
 		Box box2 = new Box(2l, "EA02", "Ernies box 2", room1);
+		Box box3 = new Box(3l, "EA02", "Ernies box 3", room2);
+		Box box4 = new Box(4l, "EA02", "Ernies box 4", room2);
 		
-		Item item1 = new Item(1l, "Item1", "This is item 1", box1);
-		Item item2 = new Item(2l, "Item2", "This is item 2", box1);
-		Item item3 = new Item(3l, "Item3", "This is item 3", box2);
-		Item item4 = new Item(4l, "Item4", "This is item 4", box2);
-		
+		this.locationList .add(locationRepository.save(location1));
 
 		this.roomList.add(roomRepository.save(room1));
+		this.roomList.add(roomRepository.save(room2));
 		
 		this.boxList.add(boxRepository.save(box1));
 		this.boxList.add(boxRepository.save(box2));
-		
-		this.itemList.add(itemRepository.save(item1));
-		this.itemList.add(itemRepository.save(item2));
-		this.itemList.add(itemRepository.save(item3));
-		this.itemList.add(itemRepository.save(item4));
-		
-	}
+		this.boxList.add(boxRepository.save(box3));
+		this.boxList.add(boxRepository.save(box4));
 	
+	}
+	 
 	@Test
-	public void getBoxes() throws Exception {
-		mockMvc.perform(get("/boxes")).andExpect(status().isOk()).andExpect(content().contentType(contentType))
-				.andExpect(jsonPath("$._embedded.boxResourceList", hasSize(2)))
-				.andExpect(jsonPath("$._embedded.boxResourceList[0].box.id", is(this.boxList.get(0).getId().intValue())))
-				.andExpect(jsonPath("$._embedded.boxResourceList[0].box.name", is(this.boxList.get(0).getName())))
-				.andExpect(jsonPath("$._embedded.boxResourceList[0].box.description", is(this.boxList.get(0).getDescription())))
-				.andExpect(jsonPath("$._embedded.boxResourceList[1].box.id", is(this.boxList.get(1).getId().intValue())))
-				.andExpect(jsonPath("$._embedded.boxResourceList[1].box.name", is(this.boxList.get(1).getName())))
-				.andExpect(jsonPath("$._embedded.boxResourceList[1].box.description", is(this.boxList.get(1).getDescription())));
+	public void getRooms() throws Exception {
+		mockMvc.perform(get("/rooms")).andExpect(status().isOk()).andExpect(content().contentType(contentType))
+				.andExpect(jsonPath("$._embedded.roomResourceList", hasSize(2)))
+				.andExpect(jsonPath("$._embedded.roomResourceList[0].room.id", is(this.roomList.get(0).getId().intValue())))
+				.andExpect(jsonPath("$._embedded.roomResourceList[0].room.name", is(this.roomList.get(0).getName())))
+				.andExpect(jsonPath("$._embedded.roomResourceList[0].room.description", is(this.roomList.get(0).getDescription())))
+				.andExpect(jsonPath("$._embedded.roomResourceList[1].room.id", is(this.roomList.get(1).getId().intValue())))
+				.andExpect(jsonPath("$._embedded.roomResourceList[1].room.name", is(this.roomList.get(1).getName())))
+				.andExpect(jsonPath("$._embedded.roomResourceList[1].room.description", is(this.roomList.get(1).getDescription())));
 	} 
 	
 }
-
 

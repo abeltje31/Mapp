@@ -14,6 +14,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
@@ -23,7 +24,7 @@ public class Room {
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private Long Id;
 
 	@Column(name = "name")
 	private String name;
@@ -34,8 +35,7 @@ public class Room {
 	private int floor;
 
 	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-	@JsonIdentityReference(alwaysAsId = true)
+	@JsonIgnore
 	private Set<Box> boxes;
 
 	@ManyToOne
@@ -52,24 +52,39 @@ public class Room {
 	}
 
 	public Room(Long id, String name, String description) {
-		this.id = id;
+		this.Id = id;
 		this.name = name;
 		this.description = description;
 	}
+	
+	public Room(Long id, String name, String description, Location location) {
+		this.Id = id;
+		this.name = name;
+		this.description = description;
+		this.location = location;
+	}
 
 	public Room(Long id, String name, String description, int floor) {
-		this.id = id;
+		this.Id = id;
 		this.name = name;
 		this.description = description;
 		this.floor = floor;
 	}
 
+	public Room(Long id, String name, String description, int floor, Location location) {
+		this.Id = id;
+		this.name = name;
+		this.description = description;
+		this.floor = floor;
+		this.location = location;
+	}
+	
 	public Long getId() {
-		return id;
+		return Id;
 	}
 
 	public void setId(Long id) {
-		this.id = id;
+		Id = id;
 	}
 
 	public String getName() {
